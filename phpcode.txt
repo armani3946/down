@@ -1,0 +1,43 @@
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Check if a file was uploaded
+    if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+        $file = $_FILES['file'];
+
+        // Validate file type (optional)
+        $allowedExtensions = ['jpg', 'jpeg', 'png'];
+        $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($fileExtension, $allowedExtensions)) {
+            echo "Invalid file type. Only JPG, JPEG, and PNG files are allowed.";
+            exit;
+        }
+
+        // Download and save the file
+        $remoteFile = $_POST['remote_file_url'];
+        $localFile = 'downloads/' . $file['name'];
+        if (file_put_contents($localFile, file_get_contents($remoteFile))) {
+            echo "File downloaded and saved successfully.";
+        } else {
+            echo "Failed to download and save the file.";
+        }
+    } else {
+        echo "Error uploading file.";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Downloader</title>
+</head>
+<body>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <br><br>
+        Remote File URL: <input type="url" name="remote_file_url" required>
+        <br><br>
+        <input type="submit" value="Download and Save">
+    </form>
+</body>
+</html>
